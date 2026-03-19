@@ -1,0 +1,34 @@
+[
+    {
+        "id": "bio",
+        "content": "Hi, I'm Prachi Dhiman, a Software Developer and B.Tech CSE student. I'm passionate about building scalable web applications, intelligent systems, and data-driven solutions. I specialize in the MERN stack (MongoDB, Express, React, Node.js) and have a strong interest in AI and Data Science."
+    },
+    {
+        "id": "skills_mern",
+        "content": "My MERN stack expertise includes building REST APIs with Node.js and Express, designing schemas with MongoDB and Mongoose, and creating dynamic frontends with React and Vite. I focus on clean architecture and efficient backend systems."
+    },
+    {
+        "id": "skills_android",
+        "content": "In Android development, I use Kotlin and Jetpack Compose to build modern, responsive mobile applications. I've integrated Machine Learning models into Android apps to create intelligent user experiences."
+    },
+    {
+        "id": "project_complaint",
+        "content": "The Online Complaint Tracker System is a full-stack MERN application that allows users to submit and track complaints. Admins can manage, filter, and resolve issues efficiently. It demonstrates my skills in CRUD operations and backend logic."
+    },
+    {
+        "id": "project_wardrobe",
+        "content": "Wardrobe AI is an Android app built with Kotlin and Jetpack Compose. It uses Machine Learning to provide outfit recommendations based on the user's wardrobe, showcasing my ability to combine mobile development with AI."
+    },
+    {
+        "id": "project_health",
+        "content": "The Lifestyle Health Risk Prediction project uses Python, Scikit-Learn, Numpy, and Pandas to assess health risks in young adults based on their lifestyle habits. It highlights my data science and predictive analytics skills."
+    },
+    {
+        "id": "philosophy",
+        "content": "My approach to software development centers on clean code, scalability, and solving real-world problems. I believe in continuous learning, especially in the evolving fields of AI and full-stack development."
+    },
+    {
+        "id": "contact_info",
+        "content": "You can contact me via email at prachidhiman5@gmail.com. I'm also active on LinkedIn at linkedin.com/in/prachi-dhiman. I'm based in India and open to worldwide opportunities."
+    }
+]

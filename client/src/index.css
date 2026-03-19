@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --color-background: #05080E;
+    --color-surface: #0F172A;
+    --color-deep-blue: #1E293B;
+    --color-deep-green: #064E3B;
+    --color-primary: #F8FAFC;
+    --color-cobalt: #6366F1;
+    --color-emerald: #10B981;
+    --color-amber: #F59E0B;
+    --color-border: #1F2937;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    @apply font-sans antialiased overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-white;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400;
+  }
+
+  .glass {
+    background: rgba(18, 24, 38, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-card {
+    background: rgba(18, 24, 38, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    @apply rounded-2xl p-6 md:p-8 transition-all duration-300;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-white/20;
+  }
+}
