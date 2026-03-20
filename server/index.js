@@ -87,10 +87,15 @@ app.post('/api/contact', async (req, res) => {
       `
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) console.error('Email error:', error);
-      else console.log('Email sent: ' + info.response);
-    });
+    // Send Email Notification (Awaiting for Vercel/Serverless reliability)
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully');
+    } catch (mailError) {
+      console.error('Email error:', mailError);
+      // We don't want to fail the whole request if only the notification fails,
+      // but we logged it for tracking.
+    }
 
     // WhatsApp Notification (Placeholder for automated API)
     console.log(`[WhatsApp Notification] To: 9034461378 | Type: ${newContact.formType} | From: ${name}`);
