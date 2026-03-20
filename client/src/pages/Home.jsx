@@ -12,8 +12,11 @@ const skills = {
     { slug: "pandas", name: "Pandas", color: "#150458" },
     { slug: "numpy", name: "NumPy", color: "#013243" },
     { slug: "scikitlearn", name: "Scikit-Learn", color: "#F7931E" },
+    { slug: "powerbi", name: "Power BI", color: "#F2C811" },
+    { slug: "microsoftexcel", name: "Excel", color: "#217346" },
   ],
   languages: [
+    { slug: "python", name: "Python", color: "#3776AB" },
     { slug: "cplusplus", name: "C++", color: "#00599C" },
     { slug: "c", name: "C", color: "#A8B9CC" },
     { slug: "openjdk", name: "Java", color: "#007396" },
