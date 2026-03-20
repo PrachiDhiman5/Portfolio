@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+// nodemailer was removed in favor of Resend API
 require('dotenv').config();
 
 const Project = require('./models/Project');
@@ -10,19 +10,7 @@ const Contact = require('./models/Contact');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Nodemailer Setup
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
+// (Nodemailer was removed here, switching to Resend API for reliability)
 
 app.use(cors());
 app.use(express.json());
@@ -70,36 +58,49 @@ app.post('/api/contact', async (req, res) => {
     
     await newContact.save();
 
-    // Send Email Notification
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: 'prachidhiman362@gmail.com',
-      subject: `🚀 New ${newContact.formType} Submission from ${name}`,
-      text: `
-        New submission received on your portfolio!
-        
-        Type: ${newContact.formType}
-        Name: ${name}
-        Email: ${email}
-        WhatsApp: ${whatsapp || 'Not provided'}
-        Classification: ${projectType || 'N/A'}
-        
-        Message:
-        ${message}
-        
-        --
-        This is an automated notification from your Portfolio Website.
-      `
-    };
+    // Send Email Notification via Resend API
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (resendApiKey) {
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'Portfolio <onboarding@resend.dev>',
+            to: ['prachidhiman362@gmail.com'],
+            subject: `🚀 New ${newContact.formType} Submission from ${name}`,
+            text: `
+New submission received on your portfolio!
 
-    // Send Email Notification (Awaiting for Vercel/Serverless reliability)
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log('Email sent successfully');
-    } catch (mailError) {
-      console.error('Email error:', mailError);
-      // We don't want to fail the whole request if only the notification fails,
-      // but we logged it for tracking.
+Type: ${newContact.formType}
+Name: ${name}
+Email: ${email}
+WhatsApp: ${whatsapp || 'Not provided'}
+Classification: ${projectType || 'N/A'}
+
+Message:
+${message}
+
+--
+This is an automated notification from your Portfolio Website.
+            `
+          })
+        });
+
+        if (!emailResponse.ok) {
+          const errorData = await emailResponse.json();
+          console.error('Resend API error:', errorData);
+        } else {
+          console.log('Email sent successfully via Resend');
+        }
+      } catch (mailErr) {
+        console.error('Failed to call Resend API:', mailErr);
+      }
+    } else {
+      console.warn('RESEND_API_KEY not found. Email not sent.');
     }
 
     // WhatsApp Notification (Placeholder for automated API)
