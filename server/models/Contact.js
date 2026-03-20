@@ -20,6 +20,15 @@ const ContactSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    formType: {
+        type: String,
+        enum: ['Collaboration', 'Opportunity'],
+        required: true
+    },
+    whatsapp: {
+        type: String,
+        trim: true
+    },
     createdAt: {
         type: Date,
         default: Date.now

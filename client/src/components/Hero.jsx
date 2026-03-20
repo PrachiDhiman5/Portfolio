@@ -2,11 +2,6 @@ import React from 'react';
 import './Hero.css';
 
 const Hero = () => {
-    const handleChatClick = () => {
-        // This will be linked to the Chatbot component later
-        window.dispatchEvent(new CustomEvent('toggle-chatbot'));
-    };
-
     return (
         <section className="hero" id="home">
             <div className="container hero-container">
@@ -21,9 +16,6 @@ const Hero = () => {
                     </p>
                     <div className="hero-btns">
                         <button className="btn-primary" onClick={() => window.location.hash = '#contact'}>Hire Me Now</button>
-                        <button className="btn-secondary" onClick={handleChatClick}>
-                            <span className="icon">💬</span> Let's Chat
-                        </button>
                     </div>
                 </div>
                 <div className="hero-image">

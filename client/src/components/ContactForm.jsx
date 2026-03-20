@@ -6,9 +6,12 @@ const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    whatsapp: '',
     projectType: 'General Inquiry',
+    formType: 'Collaboration',
     message: ''
   });
+  const [submittedData, setSubmittedData] = useState(null);
   const [status, setStatus] = useState({ loading: false, error: null, success: false });
 
   const handleChange = (e) => {
@@ -29,8 +32,9 @@ const ContactForm = () => {
       const data = await response.json();
 
       if (response.ok) {
+        setSubmittedData({ ...formData });
         setStatus({ loading: false, error: null, success: true });
-        setFormData({ name: '', email: '', projectType: 'General Inquiry', message: '' });
+        setFormData({ name: '', email: '', whatsapp: '', projectType: 'General Inquiry', formType: 'Collaboration', message: '' });
         setTimeout(() => setStatus(prev => ({ ...prev, success: false })), 5000);
       } else {
         setStatus({ loading: false, error: data.message || 'Failed to send message.', success: false });
@@ -52,6 +56,17 @@ const ContactForm = () => {
       <p className="text-zinc-400 font-mono text-sm max-w-sm">
         Your query has been securely transmitted. I will parse the data and respond shortly.
       </p>
+      
+      <div className="pt-4">
+        <a 
+          href={`https://wa.me/919034461378?text=${encodeURIComponent(`Hi Prachi, I just submitted a ${submittedData?.formType} request on your portfolio! \n\nName: ${submittedData?.name} \nEmail: ${submittedData?.email} \nType: ${submittedData?.projectType} \nMessage: ${submittedData?.message}`)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-heading font-bold rounded-full transition-all text-xs uppercase tracking-widest shadow-lg shadow-green-500/20"
+        >
+          Also Send via WhatsApp
+        </a>
+      </div>
     </motion.div>
   ) : (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -78,10 +93,23 @@ const ContactForm = () => {
             value={formData.email}
             onChange={handleChange}
             required
-            placeholder="your.email@domain.com"
+            placeholder="you@example.com"
             className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono text-sm"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="whatsapp" className="text-xs font-mono text-zinc-400 uppercase tracking-widest block">WhatsApp Number (Optional)</label>
+        <input
+          type="tel"
+          id="whatsapp"
+          name="whatsapp"
+          value={formData.whatsapp}
+          onChange={handleChange}
+          className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono text-sm"
+          placeholder="+1 234 567 890"
+        />
       </div>
 
       <div className="space-y-2">

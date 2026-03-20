@@ -56,17 +56,4 @@
 .nav ul li a.active {
     color: var(--primary-color);
 }
-
-.chat-btn {
-    padding: 10px 25px;
-    border: 1.5px solid var(--primary-color);
-    border-radius: 8px;
-    color: var(--primary-color);
-    font-weight: 600;
-    transition: var(--transition);
-}
-
-.chat-btn:hover {
-    background-color: var(--primary-color);
-    color: var(--white);
-}
+

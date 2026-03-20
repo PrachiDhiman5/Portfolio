@@ -6,9 +6,12 @@ const OpportunityForm = () => {
   const [formData, setFormData] = useState({
     recruiterName: '',
     companyEmail: '',
+    whatsapp: '',
     opportunityType: 'Full-Time Engineering Role',
+    formType: 'Opportunity',
     message: ''
   });
+  const [submittedData, setSubmittedData] = useState(null);
   const [status, setStatus] = useState({ loading: false, error: null, success: false });
 
   const handleChange = (e) => {
@@ -25,7 +28,9 @@ const OpportunityForm = () => {
       const payload = {
         name: formData.recruiterName,
         email: formData.companyEmail,
+        whatsapp: formData.whatsapp,
         projectType: formData.opportunityType,
+        formType: formData.formType,
         message: formData.message
       };
 
@@ -38,8 +43,9 @@ const OpportunityForm = () => {
       const data = await response.json();
 
       if (response.ok) {
+        setSubmittedData({ ...formData });
         setStatus({ loading: false, error: null, success: true });
-        setFormData({ recruiterName: '', companyEmail: '', opportunityType: 'Full-Time Engineering Role', message: '' });
+        setFormData({ recruiterName: '', companyEmail: '', whatsapp: '', opportunityType: 'Full-Time Engineering Role', formType: 'Opportunity', message: '' });
         setTimeout(() => setStatus(prev => ({ ...prev, success: false })), 5000);
       } else {
         setStatus({ loading: false, error: data.message || 'Failed to send message.', success: false });
@@ -61,6 +67,17 @@ const OpportunityForm = () => {
       <p className="text-primary/40 font-mono text-[10px] max-w-sm uppercase tracking-widest">
         Opportunity securely transmitted. I will review the role details and contact you shortly.
       </p>
+
+      <div className="pt-4">
+        <a 
+          href={`https://wa.me/919034461378?text=${encodeURIComponent(`Hi Prachi, I just submitted a professional ${submittedData?.formType} on your portfolio! \n\nRecruiter: ${submittedData?.recruiterName} \nCompany: ${submittedData?.companyEmail} \nRole: ${submittedData?.opportunityType} \nDetails: ${submittedData?.message}`)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-heading font-bold rounded-full transition-all text-[10px] uppercase tracking-widest shadow-lg shadow-green-500/20"
+        >
+          Also Send via WhatsApp
+        </a>
+      </div>
     </motion.div>
   ) : (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -87,10 +104,22 @@ const OpportunityForm = () => {
             value={formData.companyEmail}
             onChange={handleChange}
             required
-            placeholder="recruitment@company.com"
+            placeholder="recruiter@company.com"
             className="w-full bg-background border border-white/5 rounded-xl px-4 py-4 text-white placeholder:text-primary/10 focus:outline-none focus:border-cobalt/40 focus:ring-1 focus:ring-cobalt/20 transition-all font-mono text-sm shadow-inner"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-[10px] font-mono text-primary/40 mb-2 uppercase tracking-widest">WhatsApp Number (Optional)</label>
+        <input
+          type="tel"
+          name="whatsapp"
+          value={formData.whatsapp}
+          onChange={handleChange}
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 font-mono text-white focus:outline-none focus:border-emerald-500/30 transition-colors text-[11px]"
+          placeholder="+1 234 567 890"
+        />
       </div>
 
       <div className="space-y-3">

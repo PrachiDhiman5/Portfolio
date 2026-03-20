@@ -1,41 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const Project = require('./models/Project');
-const Message = require('./models/Message');
 const Contact = require('./models/Contact');
-const Chat = require('./models/Chat');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { initKnowledgeBase, getRelevantContext } = require('./utils/ragUtils');
-const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({
-  model: "models/gemini-1.5-flash",
-  systemInstruction: `You are Prachi Dhiman's Intelligent AI Assistant. 
-  Your goal is to act as a professional representative of Prachi.
-  
-  CONTEXT HANDLING:
-  - You will be provided with relevant context about Prachi below.
-  - Use ONLY the provided context and your core identity as Prachi's assistant to answer.
-  - If the context doesn't contain the answer, politely say you're not sure but can take a message for Prachi.
-  
-  LEAD DETECTION:
-  - If the user mentions a job, internship, or opportunity, inform them that you've flagged this for Prachi and she will be notified via email.
-  - Suggest they can also use the Contact form or LinkedIn.
-  
-  BEHAVIOR:
-  - Stay professional, friendly, and concise.
-  - Do not hallucinate details not found in the context.`
-});
-
-// Nodemailer Setup (Using placeholders - user will need to update)
+// Nodemailer Setup
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -43,9 +18,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
-
-// Initialize Knowledge Base on startup
-initKnowledgeBase().catch(console.error);
 
 app.use(cors());
 app.use(express.json());
@@ -76,18 +48,61 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-// POST a new message (Contact Form)
+// POST a new contact/opportunity submission
 app.post('/api/contact', async (req, res) => {
   try {
-    const newContact = new Contact(req.body);
+    const { name, email, message, projectType, formType, whatsapp } = req.body;
+    
+    // Save to database
+    const newContact = new Contact({
+      name,
+      email,
+      message,
+      projectType,
+      formType: formType || (projectType ? 'Collaboration' : 'Opportunity'), // Fallback if not provided
+      whatsapp
+    });
+    
     await newContact.save();
-    res.status(201).json({ message: 'Message sent successfully!' });
+
+    // Send Email Notification
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: 'prachidhiman362@gmail.com',
+      subject: `🚀 New ${newContact.formType} Submission from ${name}`,
+      text: `
+        New submission received on your portfolio!
+        
+        Type: ${newContact.formType}
+        Name: ${name}
+        Email: ${email}
+        WhatsApp: ${whatsapp || 'Not provided'}
+        Classification: ${projectType || 'N/A'}
+        
+        Message:
+        ${message}
+        
+        --
+        This is an automated notification from your Portfolio Website.
+      `
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) console.error('Email error:', error);
+      else console.log('Email sent: ' + info.response);
+    });
+
+    // WhatsApp Notification (Placeholder for automated API)
+    console.log(`[WhatsApp Notification] To: 9034461378 | Type: ${newContact.formType} | From: ${name}`);
+
+    res.status(201).json({ message: 'Submission successful! Prachi has been notified.' });
   } catch (err) {
+    console.error('Submission error:', err);
     res.status(400).json({ message: err.message });
   }
 });
 
-// SEED projects (Simple route for initial data)
+// SEED projects
 app.post('/api/projects/seed', async (req, res) => {
   const initialProjects = [
     {
@@ -126,73 +141,6 @@ app.post('/api/projects/seed', async (req, res) => {
     res.status(201).json({ message: 'Database seeded with projects!' });
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-});
-
-// Test endpoint
-app.get('/api/test', (req, res) => {
-  console.log('TEST endpoint hit!');
-  res.json({ message: 'Server is working!' });
-});
-
-// AI Chat Route
-app.post('/api/chat', async (req, res) => {
-  const { message } = req.body;
-
-  try {
-    // 1. Detect if it's a lead
-    const leadKeywords = ['job', 'opportunity', 'hire', 'internship', 'position', 'recruit'];
-    const isLead = leadKeywords.some(key => message.toLowerCase().includes(key));
-
-    // 2. Retrieve relevant context for the AI
-    console.log("RAG Query:", message); // Log the query
-    const context = await getRelevantContext(message);
-    console.log("RAG Context:", context); // Log the context
-
-    // 3. Get AI Response with Context
-    const chatSession = model.startChat({
-      history: [
-        {
-          role: "user",
-          parts: [{ text: `Here is the relevant information about Prachi:\n\n${context}` }],
-        },
-        {
-          role: "model",
-          parts: [{ text: "Understood. I will use this information to represent Prachi accurately." }],
-        },
-      ],
-    });
-
-    const result = await chatSession.sendMessage(message);
-    const aiResponse = result.response.text();
-
-    // 4. Persistence
-    await Chat.create({ sender: 'user', message, isLead });
-    await Chat.create({ sender: 'bot', message: aiResponse });
-
-    // 5. Email Alert for leads
-    if (isLead && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Send to self
-        subject: '🚀 New Opportunity Detected via Portfolio Chatbot!',
-        text: `New job opportunity detected:\n\nUser Message: "${message}"\nAI Response: "${aiResponse}"\n\nCheck your MongoDB for full history.`
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.error('Email error:', error);
-        else console.log('Email sent: ' + info.response);
-      });
-    }
-
-    res.json({
-      response: aiResponse,
-      shouldRedirect: isLead,
-      action: isLead ? 'contact' : null
-    });
-  } catch (err) {
-    console.error("Chat error:", err);
-    res.status(500).json({ message: "Something went wrong with the AI." });
   }
 });
 
